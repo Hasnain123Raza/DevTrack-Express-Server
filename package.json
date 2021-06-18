@@ -1,0 +1,18 @@
+{
+  "name": "express-server",
+  "version": "1.0.0",
+  "description": "Express server for DevTrack",
+  "main": "index.js",
+  "type": "module" ,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "DevTrack"
+  ],
+  "author": "Hasnain Raza",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
