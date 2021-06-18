@@ -1,4 +1,5 @@
 import express from "express";
+import login from "../../../../utilities/login";
 import bcrypt from "bcrypt";
 import registerFormSchema from "./registerFormSchema";
 import {
@@ -7,14 +8,16 @@ import {
   checkEmailDuplication,
 } from "../../../../services/database/models/users";
 
+import unauthenticatedMiddleware from "../../../../middlewares/unauthenticated";
 import validateMiddlware from "../../../../middlewares/validate";
 
 const router = express.Router();
 
 router.post(
   "/",
+  unauthenticatedMiddleware,
   validateMiddlware(registerFormSchema),
-  async (request, response) => {
+  async (request, response, next) => {
     const { user } = request.body;
     user.email = user.email.toLowerCase();
 
@@ -29,7 +32,7 @@ router.post(
           success: false,
           errors: [
             {
-              path: ["displayName"],
+              path: ["user", "displayName"],
               message: "Display name is already taken.",
             },
           ],
@@ -41,19 +44,21 @@ router.post(
           success: false,
           errors: [
             {
-              path: ["email"],
+              path: ["user", "email"],
               message: "Email is already associated with an existing account.",
             },
           ],
         });
 
-      user.password = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const dbUser = {
+        displayName,
+        email,
+        password: hashedPassword,
+      };
+      const addedUser = await addUser(dbUser);
 
-      const addedUser = await addUser(user);
-      return response.status(200).json({
-        success: true,
-        payload: addedUser,
-      });
+      return await login(request, response, next);
     } catch (error) {
       console.log(error);
       return response.status(500).json({

@@ -1,7 +1,9 @@
 import express from "express";
 import session from "./services/session";
+import passport from "passport";
 
 import "./services/database";
+import "./services/passport";
 
 import routers from "./routers/index.js";
 
@@ -14,6 +16,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/", routers);
 
