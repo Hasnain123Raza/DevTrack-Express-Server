@@ -1,4 +1,6 @@
 import express from "express";
+import session from "./services/session";
+
 import "./services/database";
 
 import routers from "./routers/index.js";
@@ -10,6 +12,8 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(session);
 
 app.use("/", routers);
 

@@ -14,4 +14,4 @@ process.on("exit", () => {
   client.close();
 });
 
-export default client.db("DevTrack");
+export default client.db(process.env.MONGODB_DATABASE_NAME);
