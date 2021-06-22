@@ -1,5 +1,6 @@
 export default function authenticated(request, response, next) {
-  if (!Boolean(request.user)) next();
+  const { user } = request;
+  if (!Boolean(user)) next();
   else
     return response.status(400).json({
       success: false,
@@ -9,5 +10,6 @@ export default function authenticated(request, response, next) {
           message: "User is already authenticated.",
         },
       ],
+      payload: { authenticated: Boolean(user), user: user },
     });
 }

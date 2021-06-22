@@ -48,7 +48,7 @@ passport.serializeUser((simplifiedUser, done) => {
 
 passport.deserializeUser(async (userId, done) => {
   try {
-    const simplifiedUser = await getSimplifiedUserById(userId);
+    const { password, ...simplifiedUser } = await getSimplifiedUserById(userId);
     if (Boolean(simplifiedUser)) return done(null, simplifiedUser);
     else return done(null, false);
   } catch (error) {
