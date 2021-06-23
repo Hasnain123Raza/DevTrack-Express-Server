@@ -10,6 +10,7 @@ import {
 
 import unauthenticatedMiddleware from "../../../../middlewares/unauthenticated";
 import validateMiddlware from "../../../../middlewares/validate";
+import reCaptchaV2Middleware from "../../../../middlewares/reCaptchaV2";
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.post(
   "/",
   unauthenticatedMiddleware,
   validateMiddlware(registerFormSchema),
+  reCaptchaV2Middleware,
   async (request, response, next) => {
     const { user } = request.body;
     user.email = user.email.toLowerCase();
