@@ -32,7 +32,17 @@ export default async function login(request, response, next) {
             },
           ],
         });
-      } else return response.status(200).json({ success: true });
+      } else {
+        const { password, ...user } = request.user;
+
+        return response.status(200).json({
+          success: true,
+          payload: {
+            authenticated: Boolean(user),
+            user: user,
+          },
+        });
+      }
     });
   })(request, response, next);
 }
