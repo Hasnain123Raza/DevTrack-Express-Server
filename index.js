@@ -5,6 +5,7 @@ import passport from "passport";
 
 import "./services/database";
 import "./services/passport";
+import "./services/mail";
 
 import routers from "./routers/index.js";
 

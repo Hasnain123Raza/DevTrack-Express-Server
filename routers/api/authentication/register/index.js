@@ -6,7 +6,7 @@ import {
   addUser,
   checkDisplayNameDuplication,
   checkEmailDuplication,
-} from "../../../../services/database/models/users";
+} from "../../../../services/database/collections/users";
 
 import unauthenticatedMiddleware from "../../../../middlewares/unauthenticated";
 import validateMiddlware from "../../../../middlewares/validate";

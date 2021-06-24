@@ -3,8 +3,9 @@ import { Strategy as LocalStrategy } from "passport-local";
 import {
   getSimplifiedUserByEmail,
   getSimplifiedUserById,
-} from "../database/models/users";
+} from "../database/collections/users";
 import bcrypt from "bcrypt";
+import mongodb from "mongodb";
 
 const verifyCallback = async (email, password, done) => {
   try {
@@ -48,7 +49,9 @@ passport.serializeUser((simplifiedUser, done) => {
 
 passport.deserializeUser(async (userId, done) => {
   try {
-    const { password, ...simplifiedUser } = await getSimplifiedUserById(userId);
+    const { password, ...simplifiedUser } = await getSimplifiedUserById(
+      new mongodb.ObjectID(userId)
+    );
     if (Boolean(simplifiedUser)) return done(null, simplifiedUser);
     else return done(null, false);
   } catch (error) {
