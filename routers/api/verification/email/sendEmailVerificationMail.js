@@ -8,7 +8,7 @@ export default async function sendEmailVerificationMail(
   email,
   token
 ) {
-  const verificationLink = `https://${process.env.CORS_ORIGIN}/verification/email/${token}`;
+  const verificationLink = `${process.env.CORS_ORIGIN}/verification/email/${token}`;
 
   await sendMail(
     email,

@@ -1,11 +1,11 @@
 import express from "express";
+import { getSimplifiedUserById } from "../../../../services/database/collections/users";
 import {
-  getSimplifiedUserById,
   getEmailVerificationToken,
   setEmailVerificationToken,
   removeEmailVerificationToken,
   setEmailVerified,
-} from "../../../../services/database/collections/users";
+} from "../../../../services/database/collections/users/emailVerification";
 import { validate as uuidValidate, v4 as uuidv4 } from "uuid";
 import sendEmailVerificationMail from "./sendEmailVerificationMail";
 import mongodb from "mongodb";

@@ -5,7 +5,10 @@ const router = express.Router();
 router.get("/", async (request, response) => {
   response.status(200).json({
     success: true,
-    payload: { authenticated: Boolean(request.user), user: request.user },
+    payload: {
+      authenticated: Boolean(request.user),
+      user: request.user,
+    },
   });
 });
 
