@@ -6,9 +6,9 @@ import {
   removeEmailVerificationToken,
   setEmailVerified,
 } from "../../../../services/database/collections/users/emailVerification";
-import { validate as uuidValidate, v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import sendEmailVerificationMail from "./sendEmailVerificationMail";
-import mongodb from "mongodb";
+import parseToken from "../../../../utilities/parseToken";
 
 import authenticatedMiddleware from "../../../../middlewares/authenticated";
 
@@ -94,23 +94,16 @@ router.get("/:token", async (request, response) => {
   const { token } = request.params;
 
   try {
-    const splitted = token.split(":");
-    if (splitted.length !== 2) return invalidTokenResponse(response);
-
-    const _idPart = splitted[0];
-    if (_idPart.length !== 24) return invalidTokenResponse(response);
-
-    const uuidPart = splitted[1];
-    if (!uuidValidate(uuidPart)) return invalidTokenResponse(response);
-
-    const _id = new mongodb.ObjectId(_idPart);
-    const { emailVerificationToken } = await getEmailVerificationToken(_id);
-    if (!Boolean(emailVerificationToken)) return invalidTokenResponse(response);
+    const { success: tokenParseSuccess, _id } = parseToken(token);
+    if (!tokenParseSuccess) return invalidTokenResponse(response);
 
     const user = await getSimplifiedUserById(_id);
     if (user.role !== "unverified")
       return response.status(400).json({
         success: false,
+        payload: {
+          alreadyVerified: true,
+        },
         errors: [
           {
             path: ["alert"],
@@ -118,6 +111,9 @@ router.get("/:token", async (request, response) => {
           },
         ],
       });
+
+    const { emailVerificationToken } = await getEmailVerificationToken(_id);
+    if (!Boolean(emailVerificationToken)) return invalidTokenResponse(response);
 
     const { value, expiration } = emailVerificationToken;
     if (Date.now() > expiration)
