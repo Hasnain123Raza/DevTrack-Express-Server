@@ -8,7 +8,7 @@ export default async function sendPasswordRecoverMail(
   email,
   token
 ) {
-  const recoverLink = `${process.env.CORS_ORIGIN}/password/new/${token}`;
+  const recoverLink = `${process.env.CORS_ORIGIN}/authentication/password/new/${token}`;
 
   await sendMail(
     email,

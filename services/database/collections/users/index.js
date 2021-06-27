@@ -45,3 +45,27 @@ export async function getSimplifiedUserById(_id) {
 
   return await idAggregationCursor.next();
 }
+
+export async function setEmailVerified(_id) {
+  return await collection.updateOne(
+    { _id },
+    {
+      $set: {
+        role: "verified",
+      },
+    },
+    {}
+  );
+}
+
+export async function setPassword(_id, hashedPassword) {
+  return await collection.updateOne(
+    { _id },
+    {
+      $set: {
+        password: hashedPassword,
+      },
+    },
+    {}
+  );
+}

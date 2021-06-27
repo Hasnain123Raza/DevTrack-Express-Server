@@ -1,14 +1,15 @@
 import express from "express";
 import { getSimplifiedUserById } from "../../../../services/database/collections/users";
+import { setEmailVerified } from "../../../../services/database/collections/users";
 import {
-  getEmailVerificationToken,
-  setEmailVerificationToken,
-  removeEmailVerificationToken,
-  setEmailVerified,
-} from "../../../../services/database/collections/users/emailVerification";
+  getToken,
+  setToken,
+  removeToken,
+} from "../../../../services/database/collections/users/token";
 import { v4 as uuidv4 } from "uuid";
 import sendEmailVerificationMail from "./sendEmailVerificationMail";
 import parseToken from "../../../../utilities/parseToken";
+import invalidTokenResponse from "../../../../utilities/invalidTokenResponse";
 
 import authenticatedMiddleware from "../../../../middlewares/authenticated";
 
@@ -30,7 +31,7 @@ router.get("/", authenticatedMiddleware, async (request, response) => {
 
   try {
     const { emailVerificationToken: oldEmailVerificationToken } =
-      await getEmailVerificationToken(_id);
+      await getToken(_id, "emailVerificationToken");
 
     if (
       Boolean(oldEmailVerificationToken) &&
@@ -53,7 +54,7 @@ router.get("/", authenticatedMiddleware, async (request, response) => {
       expiration: Date.now() + 15 * 60 * 1000,
     };
 
-    await setEmailVerificationToken(_id, newEmailVerificationToken);
+    await setToken(_id, "emailVerificationToken", newEmailVerificationToken);
 
     await sendEmailVerificationMail(
       displayName,
@@ -78,18 +79,6 @@ router.get("/", authenticatedMiddleware, async (request, response) => {
   }
 });
 
-function invalidTokenResponse(response) {
-  return response.status(400).json({
-    success: false,
-    errors: [
-      {
-        path: ["alert"],
-        message: "The token is invalid.",
-      },
-    ],
-  });
-}
-
 router.get("/:token", async (request, response) => {
   const { token } = request.params;
 
@@ -112,7 +101,10 @@ router.get("/:token", async (request, response) => {
         ],
       });
 
-    const { emailVerificationToken } = await getEmailVerificationToken(_id);
+    const { emailVerificationToken } = await getToken(
+      _id,
+      "emailVerificationToken"
+    );
     if (!Boolean(emailVerificationToken)) return invalidTokenResponse(response);
 
     const { value, expiration } = emailVerificationToken;
@@ -128,7 +120,7 @@ router.get("/:token", async (request, response) => {
       });
     if (token !== value) return invalidTokenResponse(response);
 
-    await removeEmailVerificationToken(_id);
+    await removeToken(_id, "emailVerificationToken");
 
     await setEmailVerified(_id);
 

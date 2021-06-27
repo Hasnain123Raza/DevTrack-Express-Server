@@ -4,14 +4,15 @@ import recoverPasswordFormSchema from "./recoverPasswordFormSchema";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import { getSimplifiedUserByEmail } from "../../../../services/database/collections/users";
+import { setPassword } from "../../../../services/database/collections/users";
 import {
-  setPasswordToken,
-  getPasswordToken,
-  removePasswordToken,
-  setPassword,
-} from "../../../../services/database/collections/users/password";
+  getToken,
+  setToken,
+  removeToken,
+} from "../../../../services/database/collections/users/token";
 import sendPasswordRecoverMail from "./sendPasswordRecoverMail";
 import parseToken from "../../../../utilities/parseToken";
+import invalidTokenResponse from "../../../../utilities/invalidTokenResponse";
 
 import validateMiddleware from "../../../../middlewares/validate";
 
@@ -25,7 +26,10 @@ router.post(
 
     try {
       const { _id, displayName } = await getSimplifiedUserByEmail(email);
-      const { passwordToken: oldPasswordToken } = await getPasswordToken(_id);
+      const { passwordToken: oldPasswordToken } = await getToken(
+        _id,
+        "passwordToken"
+      );
 
       if (Boolean(oldPasswordToken) && Date.now() < oldPasswordToken.cooldown)
         return response.status(400).json({
@@ -45,7 +49,7 @@ router.post(
         expiration: Date.now() + 15 * 60 * 1000,
       };
 
-      await setPasswordToken(_id, newPasswordToken);
+      await setToken(_id, "passwordToken", newPasswordToken);
 
       await sendPasswordRecoverMail(displayName, email, newPasswordToken.value);
 
@@ -67,18 +71,6 @@ router.post(
   }
 );
 
-function invalidTokenResponse(response) {
-  return response.status(400).json({
-    success: false,
-    errors: [
-      {
-        path: ["alert"],
-        message: "The token is invalid.",
-      },
-    ],
-  });
-}
-
 router.post(
   "/new",
   validateMiddleware(newPasswordFormSchema),
@@ -89,7 +81,7 @@ router.post(
       const { success: tokenParseSuccess, _id } = parseToken(token);
       if (!tokenParseSuccess) return invalidTokenResponse(response);
 
-      const { passwordToken } = await getPasswordToken(_id);
+      const { passwordToken } = await getToken(_id, "passwordToken");
       if (!Boolean(passwordToken)) return invalidTokenResponse(response);
 
       const { value, expiration } = passwordToken;
@@ -106,7 +98,7 @@ router.post(
         });
       if (token !== value) return invalidTokenResponse(response);
 
-      await removePasswordToken(_id);
+      await removeToken(_id, "passwordToken");
 
       const hashedPassword = await bcrypt.hash(password, 10);
       await setPassword(_id, hashedPassword);
