@@ -55,6 +55,7 @@ router.get("/", authenticatedMiddleware, async (request, response) => {
 
     return response.status(200).json({
       success: true,
+      payload: newRobloxToken.value,
     });
   } catch (error) {
     console.log(error);
