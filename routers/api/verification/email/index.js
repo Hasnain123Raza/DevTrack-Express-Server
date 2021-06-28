@@ -8,8 +8,9 @@ import {
 } from "../../../../services/database/collections/users/token";
 import { v4 as uuidv4 } from "uuid";
 import sendEmailVerificationMail from "./sendEmailVerificationMail";
-import parseToken from "../../../../utilities/parseToken";
-import invalidTokenResponse from "../../../../utilities/invalidTokenResponse";
+import parseToken from "../../../../utilities/token/parseToken";
+import invalidTokenResponse from "../../../../utilities/token/invalidTokenResponse";
+import canRequestToken from "../../../../utilities/token/canRequestToken";
 
 import authenticatedMiddleware from "../../../../middlewares/authenticated";
 
@@ -30,13 +31,7 @@ router.get("/", authenticatedMiddleware, async (request, response) => {
     });
 
   try {
-    const { emailVerificationToken: oldEmailVerificationToken } =
-      await getToken(_id, "emailVerificationToken");
-
-    if (
-      Boolean(oldEmailVerificationToken) &&
-      Date.now() < oldEmailVerificationToken.cooldown
-    )
+    if (!canRequestToken(_id, "emailVerificationToken"))
       return response.status(400).json({
         success: false,
         errors: [

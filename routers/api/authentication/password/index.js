@@ -11,8 +11,9 @@ import {
   removeToken,
 } from "../../../../services/database/collections/users/token";
 import sendPasswordRecoverMail from "./sendPasswordRecoverMail";
-import parseToken from "../../../../utilities/parseToken";
-import invalidTokenResponse from "../../../../utilities/invalidTokenResponse";
+import parseToken from "../../../../utilities/token/parseToken";
+import invalidTokenResponse from "../../../../utilities/token/invalidTokenResponse";
+import canRequestToken from "../../../../utilities/token/canRequestToken";
 
 import validateMiddleware from "../../../../middlewares/validate";
 
@@ -26,12 +27,8 @@ router.post(
 
     try {
       const { _id, displayName } = await getSimplifiedUserByEmail(email);
-      const { passwordToken: oldPasswordToken } = await getToken(
-        _id,
-        "passwordToken"
-      );
 
-      if (Boolean(oldPasswordToken) && Date.now() < oldPasswordToken.cooldown)
+      if (!canRequestToken(_id, "passwordToken"))
         return response.status(400).json({
           success: false,
           errors: [
