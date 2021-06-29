@@ -21,7 +21,7 @@ export default session({
   store: sessionStore,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
-    sameSite: "none",
+    sameSite: "None",
     secure: true,
     httpOnly: true,
   },
