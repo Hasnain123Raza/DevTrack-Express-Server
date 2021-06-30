@@ -31,7 +31,7 @@ router.get("/", authenticatedMiddleware, async (request, response) => {
     });
 
   try {
-    if (!canRequestToken(_id, "emailVerificationToken"))
+    if (!(await canRequestToken(_id, "emailVerificationToken")))
       return response.status(400).json({
         success: false,
         errors: [

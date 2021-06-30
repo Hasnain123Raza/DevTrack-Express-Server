@@ -28,7 +28,7 @@ router.post(
     try {
       const { _id, displayName } = await getSimplifiedUserByEmail(email);
 
-      if (!canRequestToken(_id, "passwordToken"))
+      if (!(await canRequestToken(_id, "passwordToken")))
         return response.status(400).json({
           success: false,
           errors: [
