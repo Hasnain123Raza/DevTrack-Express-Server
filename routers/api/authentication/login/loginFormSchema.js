@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-import { email, password, reCaptchaToken } from "../validationSchemas.js";
+import { email, password } from "../validationSchemas.js";
 
 const userSchema = Joi.object({
   email,
@@ -9,5 +9,4 @@ const userSchema = Joi.object({
 
 export default Joi.object({
   user: userSchema,
-  reCaptchaToken,
 });
